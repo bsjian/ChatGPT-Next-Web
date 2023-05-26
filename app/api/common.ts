@@ -46,7 +46,9 @@ export async function requestOpenai(req: NextRequest) {
   };
 
   try {
+    console.log("Fetch url", fetchUrl);
     const res = await fetch(fetchUrl, fetchOptions);
+    console.log("RES", res);
 
     if (res.status === 401) {
       // to prevent browser prompt for credentials
@@ -54,6 +56,8 @@ export async function requestOpenai(req: NextRequest) {
     }
 
     return res;
+  } catch (e) {
+    console.log("DEBUG", e);
   } finally {
     clearTimeout(timeoutId);
   }

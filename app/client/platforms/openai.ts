@@ -10,7 +10,7 @@ import {
 import { prettyObject } from "@/app/utils/format";
 
 export class ChatGPTApi implements LLMApi {
-  public ChatPath = "v1/chat/completions";
+  public ChatPath = "v1/chat/completions/";
   public UsagePath = "dashboard/billing/usage";
   public SubsPath = "dashboard/billing/subscription";
 
@@ -48,7 +48,8 @@ export class ChatGPTApi implements LLMApi {
       presence_penalty: modelConfig.presence_penalty,
     };
 
-    console.log("[Request] openai payload: ", requestPayload);
+    let chatPathtoLog = this.path(this.ChatPath);
+    console.log("[Request] openai payload: ", chatPathtoLog);
 
     const shouldStream = !!options.config.stream;
     const controller = new AbortController();
@@ -86,16 +87,29 @@ export class ChatGPTApi implements LLMApi {
           ...chatPayload,
           async onopen(res) {
             clearTimeout(requestTimeoutId);
-            const contentType = res.headers.get("content-type");
+            // const contentType = res.headers.get("content-type");
+            let temptext_for_logging = await res.clone().text();
             console.log(
               "[OpenAI] request response content type: ",
-              contentType,
+              // contentType,
+              // temptext_for_logging,
+              // res.ok,
+              // res.json,
+              // res.text,
+              // res.headers,
+              res.body,
             );
 
-            if (contentType?.startsWith("text/plain")) {
-              responseText = await res.clone().text();
-              return finish();
-            }
+            // let responselog = res.json()
+            // console.log(
+            //   'This is the response of the stream', responselog
+            // )
+            // let resbody = res.body
+
+            // if (contentType?.startsWith("text/plain")) {
+            //   responseText = await res.clone().text();
+            //   return finish();
+            // }
 
             if (
               !res.ok ||
@@ -106,6 +120,7 @@ export class ChatGPTApi implements LLMApi {
             ) {
               const responseTexts = [responseText];
               let extraInfo = await res.clone().text();
+              console.log("extra info for response", extraInfo);
               try {
                 const resJson = await res.clone().json();
                 extraInfo = prettyObject(resJson);
