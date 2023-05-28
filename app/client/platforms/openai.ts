@@ -64,6 +64,8 @@ export class ChatGPTApi implements LLMApi {
         headers: getHeaders(),
       };
 
+      console.log("Request Body", requestPayload);
+
       // make a fetch request
       const requestTimeoutId = setTimeout(
         () => controller.abort(),
@@ -147,7 +149,11 @@ export class ChatGPTApi implements LLMApi {
             try {
               const json = JSON.parse(text);
               const delta = json.choices[0].delta.content;
-              if (delta) {
+              const create_new_chat_box = msg.event == "end_event";
+              if (create_new_chat_box) {
+                responseText = "";
+                options.onNewAssitantChatBox();
+              } else if (delta) {
                 responseText += delta;
                 options.onUpdate?.(responseText, delta);
               }

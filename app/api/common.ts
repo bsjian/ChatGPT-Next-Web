@@ -8,7 +8,7 @@ const BASE_URL = process.env.BASE_URL ?? OPENAI_URL;
 export async function requestOpenai(req: NextRequest) {
   const controller = new AbortController();
   const authValue = req.headers.get("Authorization") ?? "";
-  const openaiPath = `${req.nextUrl.pathname}${req.nextUrl.search}`.replaceAll(
+  const openaiPath = `${req.nextUrl.pathname}/${req.nextUrl.search}`.replaceAll(
     "/api/openai/",
     "",
   );
@@ -46,9 +46,7 @@ export async function requestOpenai(req: NextRequest) {
   };
 
   try {
-    console.log("Fetch url", fetchUrl);
     const res = await fetch(fetchUrl, fetchOptions);
-    console.log("RES", res);
 
     if (res.status === 401) {
       // to prevent browser prompt for credentials
@@ -57,7 +55,7 @@ export async function requestOpenai(req: NextRequest) {
 
     return res;
   } catch (e) {
-    console.log("DEBUG", e);
+    if (e instanceof Error) console.log("[Fetch Url Error]", e.name);
   } finally {
     clearTimeout(timeoutId);
   }

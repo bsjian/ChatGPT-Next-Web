@@ -282,11 +282,22 @@ export const useChatStore = create<ChatStore>()(
           messages: sendMessages,
           config: { ...modelConfig, stream: true },
           onUpdate(message) {
+            console.log("[[UPDATE MESSAGE]]", message);
             botMessage.streaming = true;
             if (message) {
               botMessage.content = message;
             }
             set(() => ({}));
+          },
+          onNewAssitantChatBox() {
+            const temp = createMessage({
+              role: "assistant",
+              content: botMessage.content,
+              id: botMessage.id! + 1,
+            });
+            let tempMessage: ChatMessage = session.messages.pop()!;
+            session.messages.push(temp);
+            session.messages.push(tempMessage);
           },
           onFinish(message) {
             botMessage.streaming = false;
@@ -447,6 +458,7 @@ export const useChatStore = create<ChatStore>()(
                     message.length > 0 ? trimTopic(message) : DEFAULT_TOPIC),
               );
             },
+            onNewAssitantChatBox: function (): void {},
           });
         }
 
@@ -501,6 +513,7 @@ export const useChatStore = create<ChatStore>()(
             onError(err) {
               console.error("[Summarize] ", err);
             },
+            onNewAssitantChatBox: function (): void {},
           });
         }
       },
